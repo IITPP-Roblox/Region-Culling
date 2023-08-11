@@ -1,0 +1,6 @@
+{
+    "name": "RegionCulling",
+    "tree": {
+        "$path": "./src"
+    }
+}

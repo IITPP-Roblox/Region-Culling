@@ -1,0 +1,25 @@
+{
+    "name": "RegionCullingPlace",
+    "tree": {
+        "$className": "DataModel",
+        "ReplicatedStorage": {
+            "$className": "ReplicatedStorage",
+            "RegionCulling": {
+                "$path": "."
+            }
+        },
+        "StarterPlayer": {
+            "$className": "StarterPlayer",
+            "StarterPlayerScripts": {
+                "$className": "StarterPlayerScripts",
+                "$path": "./demo/StarterPlayerScripts"
+            }
+        },
+        "TestService": {
+            "$className": "TestService",
+            "RegionCullingTest": {
+                "$path": "./test"
+            }
+        }
+    }
+}
