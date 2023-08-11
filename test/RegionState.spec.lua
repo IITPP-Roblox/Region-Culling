@@ -57,5 +57,64 @@ return function()
             expect(function() RegionStateObject:ConnectRegions("Region4", "Region3") end).to.throw("Region \"Region4\" does not exist.")
             expect(function() RegionStateObject:ConnectRegions("Region1", "Region4") end).to.throw("Region \"Region4\" does not exist.")
         end)
+
+        it("should fire events.", function()
+            local VisibleEvents, HiddenEvents = {} :: {[string]: boolean}, {} :: {[string]: boolean}
+            RegionStateObject.RegionVisible:Connect(function(Region)
+                VisibleEvents[Region] = true
+            end)
+            RegionStateObject.RegionHidden:Connect(function(Region)
+                HiddenEvents[Region] = true
+            end)
+
+            RegionStateObject:UpdateVisibleRegions(Vector3.new(0, 0, 0))
+            task.wait()
+            expect(VisibleEvents["Region1"]).to.equal(true)
+            expect(VisibleEvents["Region2"]).to.equal(true)
+            expect(VisibleEvents["Region3"]).to.equal(true)
+            expect(HiddenEvents["Region1"]).to.equal(nil)
+            expect(HiddenEvents["Region2"]).to.equal(nil)
+            expect(HiddenEvents["Region3"]).to.equal(nil)
+
+            VisibleEvents, HiddenEvents = {}, {}
+            RegionStateObject:UpdateVisibleRegions(Vector3.new(0, 4, 0))
+            task.wait()
+            expect(VisibleEvents["Region1"]).to.equal(nil)
+            expect(VisibleEvents["Region2"]).to.equal(nil)
+            expect(VisibleEvents["Region3"]).to.equal(nil)
+            expect(HiddenEvents["Region1"]).to.equal(nil)
+            expect(HiddenEvents["Region2"]).to.equal(nil)
+            expect(HiddenEvents["Region3"]).to.equal(nil)
+
+            VisibleEvents, HiddenEvents = {}, {}
+            RegionStateObject:UpdateVisibleRegions(Vector3.new(0, 0, 4))
+            task.wait()
+            expect(VisibleEvents["Region1"]).to.equal(nil)
+            expect(VisibleEvents["Region2"]).to.equal(nil)
+            expect(VisibleEvents["Region3"]).to.equal(nil)
+            expect(HiddenEvents["Region1"]).to.equal(nil)
+            expect(HiddenEvents["Region2"]).to.equal(nil)
+            expect(HiddenEvents["Region3"]).to.equal(true)
+
+            VisibleEvents, HiddenEvents = {}, {}
+            RegionStateObject:UpdateVisibleRegions(Vector3.new(0, 0, 6))
+            task.wait()
+            expect(VisibleEvents["Region1"]).to.equal(nil)
+            expect(VisibleEvents["Region2"]).to.equal(nil)
+            expect(VisibleEvents["Region3"]).to.equal(true)
+            expect(HiddenEvents["Region1"]).to.equal(nil)
+            expect(HiddenEvents["Region2"]).to.equal(true)
+            expect(HiddenEvents["Region3"]).to.equal(nil)
+
+            VisibleEvents, HiddenEvents = {}, {}
+            RegionStateObject:UpdateVisibleRegions(Vector3.new(0, 0, 10))
+            task.wait()
+            expect(VisibleEvents["Region1"]).to.equal(nil)
+            expect(VisibleEvents["Region2"]).to.equal(nil)
+            expect(VisibleEvents["Region3"]).to.equal(nil)
+            expect(HiddenEvents["Region1"]).to.equal(true)
+            expect(HiddenEvents["Region2"]).to.equal(nil)
+            expect(HiddenEvents["Region3"]).to.equal(true)
+        end)
     end)
 end
