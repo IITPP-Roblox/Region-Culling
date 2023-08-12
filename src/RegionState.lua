@@ -8,6 +8,7 @@ Stores regions and controls which are relevant.
 local Workspace = game:GetService("Workspace")
 
 local Event = require(script.Parent:WaitForChild("Event"))
+local Types = require(script.Parent:WaitForChild("Types"))
 
 local RegionState = {}
 RegionState.__index = RegionState
@@ -17,14 +18,14 @@ RegionState.__index = RegionState
 --[[
 Creates a region state.
 --]]
-function RegionState.new()
-    return setmetatable({
+function RegionState.new(): Types.RegionState
+    return (setmetatable({
         Regions = {},
         CurrentVisibleRegionsMap = {},
         CurrentVisibleRegions = {},
         RegionVisible = Event.new() :: Event.Event<string>,
         RegionHidden = Event.new() :: Event.Event<string>,
-    }, RegionState)
+    }, RegionState) :: any) :: Types.RegionState
 end
 
 --[[
@@ -139,4 +140,4 @@ end
 
 
 
-return RegionState
+return (RegionState :: any) :: Types.RegionState
