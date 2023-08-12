@@ -5,7 +5,7 @@ Tests the RegionState class.
 --]]
 --!strict
 
-local RegionState = require(game:GetService("ReplicatedStorage"):WaitForChild("RegionCulling"):WaitForChild("RegionState"))
+local RegionState = require(game:GetService("ReplicatedStorage"):WaitForChild("RegionCulling"):WaitForChild("State"):WaitForChild("RegionState"))
 
 return function()
     describe("A region state", function()

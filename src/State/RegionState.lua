@@ -7,8 +7,8 @@ Stores regions and controls which are relevant.
 
 local Workspace = game:GetService("Workspace")
 
-local Event = require(script.Parent:WaitForChild("Event"))
-local Types = require(script.Parent:WaitForChild("Types"))
+local Event = require(script.Parent.Parent:WaitForChild("Event"))
+local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
 local RegionState = {}
 RegionState.__index = RegionState

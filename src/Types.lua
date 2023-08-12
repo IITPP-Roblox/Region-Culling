@@ -23,4 +23,10 @@ export type RegionState = {
     StartUpdating: (self: RegionState) -> (),
 } & BaseRegionState
 
+export type BufferedRegionState = {
+    HiddenRegionTimeout: number,
+    WrappedRegionState: BaseRegionState,
+    new: (RegionState: BaseRegionState) -> (BufferedRegionState),
+} & BaseRegionState
+
 return true
