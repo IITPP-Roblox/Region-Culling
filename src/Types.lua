@@ -12,6 +12,7 @@ export type BaseRegionState = {
     RegionHidden: Event.Event<string>,
 
     GetCurrentVisibleRegions: (self: BaseRegionState) -> ({string}),
+    IsRegionVisible: (self: BaseRegionState, RegionName: string) -> (boolean),
     AddRegion: (self: BaseRegionState, RegionName: string, Center: CFrame, Size: Vector3) -> (),
     ConnectRegions: (self: BaseRegionState, RegionName1: string, RegionName2: string) -> (),
 }

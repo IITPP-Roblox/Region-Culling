@@ -22,6 +22,7 @@ function BufferedRegionState.new(RegionState: Types.BaseRegionState): Types.Buff
     local self = setmetatable({
         HiddenRegionTimeout = 5,
         WrappedRegionState = RegionState,
+        CurrentVisibleRegionsMap = {},
         CurrentVisibleRegions = {},
         RegionVisible = Event.new() :: Event.Event<string>,
         RegionHidden = Event.new() :: Event.Event<string>,
@@ -37,6 +38,7 @@ function BufferedRegionState.new(RegionState: Types.BaseRegionState): Types.Buff
 
         --Store the region as visible.
         table.insert(self.CurrentVisibleRegions, RegionName)
+        self.CurrentVisibleRegionsMap[RegionName] = true
         self.RegionVisible:Fire(RegionName)
     end)
     RegionState.RegionHidden:Connect(function(RegionName)
@@ -52,6 +54,7 @@ function BufferedRegionState.new(RegionState: Types.BaseRegionState): Types.Buff
                 table.remove(self.CurrentVisibleRegions, i)
                 break
             end
+            self.CurrentVisibleRegionsMap[RegionName] = false
             self.RegionHidden:Fire(RegionName)
         end)
     end)
@@ -65,6 +68,13 @@ Returns a list of the current visible regions.
 --]]
 function BufferedRegionState:GetCurrentVisibleRegions(): {string}
     return self.CurrentVisibleRegions
+end
+
+--[[
+Returns if a region is currently visible.
+--]]
+function BufferedRegionState:IsRegionVisible(RegionName: string): boolean
+    return self.CurrentVisibleRegionsMap[RegionName] == true
 end
 
 --[[

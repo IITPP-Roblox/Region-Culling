@@ -65,6 +65,13 @@ function RegionState:GetCurrentVisibleRegions(): {string}
 end
 
 --[[
+Returns if a region is currently visible.
+--]]
+function RegionState:IsRegionVisible(RegionName: string): boolean
+    return self.CurrentVisibleRegionsMap[RegionName] == true
+end
+
+--[[
 Adds a region with a given center and size.
 Region names can be non-unique.
 --]]

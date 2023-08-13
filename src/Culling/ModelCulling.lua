@@ -28,6 +28,7 @@ function ModelCulling.new(RegionState: Types.BaseRegionState): Types.ModelCullin
         PassiveModelFlattenDelay = 5,
         Contexts = {},
         QueuedOperations = {},
+        WasInNoRegions = false,
     }, ModelCulling) :: any) :: Types.ModelCulling
 
     --Create the hidden geometry folder.
@@ -55,17 +56,8 @@ end
 Handles a model being added.
 --]]
 function ModelCulling:HandleInitialModel(RegionName: string, Context: Types.ModelCullingContext): ()
-    --Check if the region is visible.
     local VisibleRegions = self.RegionState:GetCurrentVisibleRegions()
-    local RegionVisible = false
-    for _, OtherRegionName in VisibleRegions do
-        if RegionName ~= OtherRegionName then continue end
-        RegionVisible = true
-        break
-    end
-
-    --Queue hiding the region.
-    if not RegionVisible and not (#VisibleRegions == 0 and Context.VisibleWhenOutsideRegions) then
+    if not self.RegionState:IsRegionVisible(RegionName) and not (#VisibleRegions == 0 and Context.VisibleWhenOutsideRegions) then
         Context:FlattenModel()
         table.insert(self.QueuedOperations, {
             RegionName = RegionName,
@@ -125,6 +117,7 @@ function ModelCulling:HideRegion(RegionName: string): ()
 
     --Show models that are visible when the player is in no region.
     if #self.RegionState:GetCurrentVisibleRegions() == 0 then
+        self.WasInNoRegions = true
         for _, Contexts in self.Contexts do
             for _, Context in Contexts do
                 if not Context.VisibleWhenOutsideRegions then continue end
@@ -160,7 +153,19 @@ function ModelCulling:ShowRegion(RegionName: string): ()
     end
 
     --Hide the models that are visible when in no regions.
-    --TODO
+    if self.WasInNoRegions then
+        for RegionName, Contexts in self.Contexts do
+            if self.RegionState:IsRegionVisible(RegionName) then continue end
+            for _, Context in Contexts do
+                if not Context.VisibleWhenOutsideRegions then continue end
+                table.insert(self.QueuedOperations, {
+                    RegionName = RegionName,
+                    Operation = "Hide",
+                    Context = Context,
+                })
+            end
+        end
+    end
 end
 
 --[[
