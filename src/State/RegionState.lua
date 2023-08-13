@@ -130,10 +130,11 @@ end
 Starts updating the visible regions.
 --]]
 function RegionState:StartUpdating(): ()
+    self:UpdateVisibleRegions()
     task.spawn(function()
         while true do
-            self:UpdateVisibleRegions()
             task.wait(0.1)
+            self:UpdateVisibleRegions()
         end
     end)
 end
