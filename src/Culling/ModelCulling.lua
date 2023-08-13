@@ -225,15 +225,17 @@ Starts passively flattening models in the background.
 Only intended for models that change (such as StreamingEnabled).
 --]]
 function ModelCulling:StartModelFlattening(): ()
-    while true do
-		for RegionName, Contexts in self.Contexts do
-			for _, Context in Contexts do
-                Context:FlattenModel()
-                task.wait()
+    task.spawn(function()
+        while true do
+            for RegionName, Contexts in self.Contexts do
+                for _, Context in Contexts do
+                    Context:FlattenModel()
+                    task.wait()
+                end
             end
-		end
-		task.wait(self.PassiveModelFlattenDelay)
-	end
+            task.wait(self.PassiveModelFlattenDelay)
+        end
+    end)
 end
 
 
