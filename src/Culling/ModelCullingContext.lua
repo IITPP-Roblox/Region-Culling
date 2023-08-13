@@ -198,7 +198,7 @@ function ModelCullingContext:HideModel(RemainingOperations: number): number
     end
 
     --Move the model and remove the queued action
-    if RemainingOperations > 0 and (not StaticAnchoredParts or #StaticAnchoredParts:GetChildren() == 0) then
+    if RemainingOperations > 0 and self.Model.Parent ~= HiddenGeometry and (not StaticAnchoredParts or #StaticAnchoredParts:GetChildren() == 0) then
         local MovedParts = 0
         for _, Part in self.Model:GetDescendants() do
             if not Part:IsA("BasePart") then continue end
