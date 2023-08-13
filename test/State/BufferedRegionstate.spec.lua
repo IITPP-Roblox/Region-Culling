@@ -18,7 +18,7 @@ return function()
                 RegionVisible = Event.new() :: Event.Event<string>,
                 RegionHidden = Event.new() :: Event.Event<string>,
             }
-            RegionStateObject = BufferedRegionState.new(TestRegionState)
+            RegionStateObject = BufferedRegionState.new(TestRegionState :: any)
             RegionStateObject.HiddenRegionTimeout = 0.1
 
             VisibleEvents, HiddenEvents = {}, {}
