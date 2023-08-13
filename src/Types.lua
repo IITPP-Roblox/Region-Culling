@@ -11,6 +11,7 @@ export type BaseRegionState = {
     RegionVisible: Event.Event<string>,
     RegionHidden: Event.Event<string>,
 
+    IsInRegion: (self: BaseRegionState, RegionName: string, Position: Vector3) -> (boolean),
     GetCurrentVisibleRegions: (self: BaseRegionState) -> ({string}),
     IsRegionVisible: (self: BaseRegionState, RegionName: string) -> (boolean),
     AddRegion: (self: BaseRegionState, RegionName: string, Center: CFrame, Size: Vector3) -> (),
@@ -20,7 +21,6 @@ export type BaseRegionState = {
 
 export type RegionState = {
     new: () -> (RegionState),
-    InRegion: (self: RegionState, RegionName: string, Position: Vector3) -> (boolean),
     GetVisibleRegions: (self: RegionState, Position: Vector3) -> ({[string]: boolean}),
     UpdateVisibleRegions: (self: RegionState, Position: Vector3?) -> (),
 } & BaseRegionState

@@ -64,6 +64,13 @@ function BufferedRegionState.new(RegionState: Types.BaseRegionState): Types.Buff
 end
 
 --[[
+Returns if a point is in a region.
+--]]
+function BufferedRegionState:IsInRegion(RegionName: string, Position: Vector3): boolean
+    return self.WrappedRegionState:IsInRegion(RegionName, Position)
+end
+
+--[[
 Returns a list of the current visible regions.
 --]]
 function BufferedRegionState:GetCurrentVisibleRegions(): {string}

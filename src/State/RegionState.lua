@@ -31,7 +31,7 @@ end
 --[[
 Returns if a point is in a region.
 --]]
-function RegionState:InRegion(RegionName: string, Position: Vector3): boolean
+function RegionState:IsInRegion(RegionName: string, Position: Vector3): boolean
     local PositionCFrame = CFrame.new(Position)
     for _, Zone in self.Regions[RegionName].Zones do
         local Size = Zone.Size
@@ -48,7 +48,7 @@ Returns a dictionary of the visible regions.
 function RegionState:GetVisibleRegions(Position: Vector3): {[string]: boolean}
     local VisibleRegionsMap = {}
     for RegionName, RegionData in self.Regions do
-        if not self:InRegion(RegionName, Position) then continue end
+        if not self:IsInRegion(RegionName, Position) then continue end
         VisibleRegionsMap[RegionName] = true
         for _, VisibleRegionName in RegionData.VisibleRegions do
             VisibleRegionsMap[VisibleRegionName] = true
