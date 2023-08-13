@@ -187,7 +187,7 @@ function ModelCullingContext:HideModel(RemainingOperations: number): number
             local Part = StaticAnchoredPartsToMove[i]
             Part.Parent = HiddenGeometry
             table.insert(self.HiddenParts, {Part = Part, Parent = StaticAnchoredParts})
-            RemainingOperations +=  -(Part:IsA("Model") and #Part:GetChildren() or 1)
+            RemainingOperations += -((Part:IsA("Model") or Part:IsA("Folder")) and #Part:GetChildren() or 1)
         end
     end
 
