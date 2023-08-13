@@ -179,6 +179,62 @@ function ModelCullingContext:FlattenModel(): ()
 end
 
 --[[
+Returns a summary for the model culling context.
+--]]
+function ModelCullingContext:GetSummary(): Types.ModelCullingContextSummary
+    --Create the initial summary.
+    local Summary = {
+        Model = self.Model,
+        FlattenedParts = 0,
+        UnflattenedParts = 0,
+        Issues = {},
+    }
+
+    --Get the lists of instances to iterate over.
+    local ModelDescendants = self.Model:GetDescendants()
+    local HiddenParts = {}
+    local HiddenDescendants = {}
+    for _, PartData in self.HiddenParts do
+        table.insert(HiddenParts, PartData.Part)
+        for _, Child in PartData.Part:GetDescendants() do
+            table.insert(HiddenDescendants, Child)
+        end
+    end
+
+    --Iterate over the instances.
+    local StaticAnchoredParts = self.Model:FindFirstChild("StaticParts") :: Folder
+    for _, ChildGroup in {ModelDescendants, HiddenParts, HiddenDescendants} do
+        for _, Child in ChildGroup do
+            --Add the part.
+            if Child:IsA("BasePart") then
+                if StaticAnchoredParts and (Child:IsDescendantOf(StaticAnchoredParts) or not Child:IsDescendantOf(self.Model)) then
+                    Summary.FlattenedParts += 1
+                else
+                    Summary.UnflattenedParts += 1
+                end
+            end
+
+            --Add the problems.
+            local Issues = {}
+            for _, Filter in self.FlatteningFilters do
+                local CanFlatten, Issue = Filter(Child)
+                if CanFlatten then continue end
+                table.insert(Issues, Issue)
+            end
+            if #Issues > 0 then
+                table.insert(Summary.Issues, {
+                    Instance = Child,
+                    Issues = Issues,
+                })
+            end
+        end
+    end
+
+    --Return the summary.
+    return Summary
+end
+
+--[[
 Hides the current model using the given amoung of operations. Returns the
 remaining operations.
 --]]

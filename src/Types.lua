@@ -35,6 +35,18 @@ export type BufferedRegionState = {
 
 
 --Model culling
+export type ModelCullingIssue = {
+    Instance: Instance,
+    Issues: {string},
+}
+
+export type ModelCullingContextSummary = {
+    Model: Instance,
+    FlattenedParts: number,
+    UnflattenedParts: number,
+    Issues: {ModelCullingIssue},
+}
+
 export type ModelCullingContext = {
     Model: Instance,
     ModelCulling: ModelCulling,
@@ -55,6 +67,7 @@ export type ModelCullingContext = {
     AddFlatteningFilter: (self: ModelCullingContext, Filter: (Instance) -> (boolean, string?)) -> (ModelCullingContext),
     CanFlatten: (self: ModelCullingContext, Child: Instance) -> (boolean),
     FlattenModel: (self: ModelCullingContext) -> (),
+    GetSummary: (self: ModelCullingContext) -> (ModelCullingContextSummary),
     HideModel: (self: ModelCullingContext, RemainingOperations: number) -> (number),
     ShowModel: (self: ModelCullingContext, RemainingOperations: number) -> (number),
 }
@@ -79,6 +92,7 @@ export type ModelCulling = {
     HandleInitialModel: (self: ModelCulling, RegionName: string, Context: ModelCullingContext) -> (),
     BindModelToRegion: (self: ModelCulling, RegionName: string, Model: Instance) -> (ModelCullingContext),
     RemoveQueuedOperations: (self: ModelCulling, RegionName: string) -> (),
+    GetSummary: (self: ModelCulling) -> ({[string]: {ModelCullingContextSummary}}),
     HideRegion: (self: ModelCulling, RegionName: string) -> (),
     ShowRegion: (self: ModelCulling, RegionName: string) -> (),
     PerformQueueStep: (self: ModelCulling) -> (),

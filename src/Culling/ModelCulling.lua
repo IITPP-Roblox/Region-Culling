@@ -99,6 +99,20 @@ function ModelCulling:RemoveQueuedOperations(RegionName: string): ()
 end
 
 --[[
+Gets the summary of all the stored models.
+--]]
+function ModelCulling:GetSummary(): {[string]: {Types.ModelCullingContextSummary}}
+    local Summaries = {}
+    for RegionName, Contexts in self.Contexts do
+        Summaries[RegionName] = {}
+        for _, Context in Contexts do
+            table.insert(Summaries[RegionName], Context:GetSummary())
+        end
+    end
+    return Summaries
+end
+
+--[[
 Queues a region to be hidden.
 --]]
 function ModelCulling:HideRegion(RegionName: string): ()
