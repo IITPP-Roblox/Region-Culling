@@ -33,6 +33,7 @@ Returns if a point is in a region.
 --]]
 function RegionState:IsInRegion(RegionName: string, Position: Vector3): boolean
     local PositionCFrame = CFrame.new(Position)
+    if not self.Regions[RegionName] then return false end
     for _, Zone in self.Regions[RegionName].Zones do
         local Size = Zone.Size
         local RelativeCFrame = Zone.Center:Inverse() * PositionCFrame
