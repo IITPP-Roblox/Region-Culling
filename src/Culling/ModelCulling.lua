@@ -28,7 +28,6 @@ function ModelCulling.new(RegionState: Types.BaseRegionState): Types.ModelCullin
         PassiveModelFlattenDelay = 5,
         Contexts = {},
         QueuedOperations = {},
-        WasInNoRegions = false,
     }, ModelCulling) :: any) :: Types.ModelCulling
 
     --Create the hidden geometry folder.
@@ -56,8 +55,7 @@ end
 Handles a model being added.
 --]]
 function ModelCulling:HandleInitialModel(RegionName: string, Context: Types.ModelCullingContext): ()
-    local VisibleRegions = self.RegionState:GetCurrentVisibleRegions()
-    if not self.RegionState:IsRegionVisible(RegionName) and not (#VisibleRegions == 0 and Context.VisibleWhenOutsideRegions) then
+    if not self.RegionState:IsRegionVisible(RegionName) then
         table.insert(self.QueuedOperations, {
             RegionName = RegionName,
             Operation = "Hide",
@@ -117,8 +115,6 @@ Queues a region to be hidden.
 --]]
 function ModelCulling:HideRegion(RegionName: string): ()
     self:RemoveQueuedOperations(RegionName)
-
-    --Hide models for the region.
     if self.Contexts[RegionName] then
         for _, Context in self.Contexts[RegionName] do
             table.insert(self.QueuedOperations, {
@@ -128,25 +124,6 @@ function ModelCulling:HideRegion(RegionName: string): ()
             })
         end
     end
-
-    --Show models that are visible when the player is in no region.
-    if #self.RegionState:GetCurrentVisibleRegions() == 0 then
-        self.WasInNoRegions = true
-        for _, Contexts in self.Contexts do
-            for _, Context in Contexts do
-                if not Context.VisibleWhenOutsideRegions then continue end
-                for i = #self.QueuedOperations, 1, -1 do
-                    if self.QueuedOperations[i].Context ~= Context then continue end
-                    table.remove(self.QueuedOperations, i)
-                end
-                table.insert(self.QueuedOperations, 1, {
-                    RegionName = RegionName,
-                    Operation = "Show",
-                    Context = Context,
-                })
-            end
-        end
-    end
 end
 
 --[[
@@ -154,8 +131,6 @@ Queues a region to be shown.
 --]]
 function ModelCulling:ShowRegion(RegionName: string): ()
     self:RemoveQueuedOperations(RegionName)
-
-    --Show models for the region.
     if self.Contexts[RegionName] then
         for _, Context in self.Contexts[RegionName] do
             table.insert(self.QueuedOperations, 1, {
@@ -163,21 +138,6 @@ function ModelCulling:ShowRegion(RegionName: string): ()
                 Operation = "Show",
                 Context = Context,
             })
-        end
-    end
-
-    --Hide the models that are visible when in no regions.
-    if self.WasInNoRegions then
-        for RegionName, Contexts in self.Contexts do
-            if self.RegionState:IsRegionVisible(RegionName) then continue end
-            for _, Context in Contexts do
-                if not Context.VisibleWhenOutsideRegions then continue end
-                table.insert(self.QueuedOperations, {
-                    RegionName = RegionName,
-                    Operation = "Hide",
-                    Context = Context,
-                })
-            end
         end
     end
 end

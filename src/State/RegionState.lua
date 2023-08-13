@@ -21,6 +21,7 @@ Creates a region state.
 function RegionState.new(): Types.RegionState
     return (setmetatable({
         Regions = {},
+        VisibleWhenOutsideRegionsMap = {},
         CurrentVisibleRegionsMap = {},
         CurrentVisibleRegions = {},
         RegionVisible = Event.new() :: Event.Event<string>,
@@ -48,12 +49,17 @@ Returns a dictionary of the visible regions.
 --]]
 function RegionState:GetVisibleRegions(Position: Vector3): {[string]: boolean}
     local VisibleRegionsMap = {}
+    local InRegions = false
     for RegionName, RegionData in self.Regions do
         if not self:IsInRegion(RegionName, Position) then continue end
+        InRegions = true
         VisibleRegionsMap[RegionName] = true
         for _, VisibleRegionName in RegionData.VisibleRegions do
             VisibleRegionsMap[VisibleRegionName] = true
         end
+    end
+    if not InRegions then
+        return self.VisibleWhenOutsideRegionsMap
     end
     return VisibleRegionsMap
 end
@@ -101,6 +107,13 @@ function RegionState:ConnectRegions(RegionName1: string, RegionName2: string): (
     end
     table.insert(self.Regions[RegionName1].VisibleRegions, RegionName2)
     table.insert(self.Regions[RegionName2].VisibleRegions, RegionName1)
+end
+
+--[[
+Marks a region as visible when the player is outside all regions.
+--]]
+function RegionState:SetVisibleWhenOutsideRegions(RegionName: string): ()
+    self.VisibleWhenOutsideRegionsMap[RegionName] = true
 end
 
 --[[

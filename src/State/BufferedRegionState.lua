@@ -100,6 +100,13 @@ function BufferedRegionState:ConnectRegions(RegionName1: string, RegionName2: st
 end
 
 --[[
+Marks a region as visible when the player is outside all regions.
+--]]
+function BufferedRegionState:SetVisibleWhenOutsideRegions(RegionName: string): ()
+    self.WrappedRegionState:SetVisibleWhenOutsideRegions(RegionName)
+end
+
+--[[
 Starts updating the visible regions.
 --]]
 function BufferedRegionState:StartUpdating(): ()

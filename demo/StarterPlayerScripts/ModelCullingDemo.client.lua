@@ -47,10 +47,10 @@ for X = -2, 2 do
         end
 
         RegionState:AddRegion(Name, CenterCFrame, Vector3.new(20, 20, 20))
-        local Context = ModelCulling:BindModelToRegion(Name, Model):EnableFlattening():EnableClustering(5)
         if X == -2 or X == 2 or Y == -2 or Y == 2 then
-            Context:MakeVisibleWhenOutsideRegions()
+            RegionState:SetVisibleWhenOutsideRegions(Name)
         end
+        ModelCulling:BindModelToRegion(Name, Model):EnableFlattening():EnableClustering(5)
     end
 end
 

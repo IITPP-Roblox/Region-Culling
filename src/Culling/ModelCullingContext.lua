@@ -23,19 +23,9 @@ function ModelCullingContext.new(Model: Instance, ModelCulling: Types.ModelCulli
         HiddenParts = {},
         FlatteningEnabled = false,
         ClusteringEnabled = false,
-        VisibleWhenOutsideRegions = false,
         FlatteningFilters = {},
         UnflattenableModelCache = {},
     }, ModelCullingContext) :: any) :: Types.ModelCullingContext
-end
-
---[[
-Makes the model visible when the player is not in any regions.
-This is intended for models that have too complex bounds.
---]]
-function ModelCullingContext:MakeVisibleWhenOutsideRegions(): Types.ModelCullingContext
-    self.VisibleWhenOutsideRegions = true
-    return self
 end
 
 --[[

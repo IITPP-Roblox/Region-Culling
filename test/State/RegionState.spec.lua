@@ -51,6 +51,17 @@ return function()
             expect(VisibleRegions["Region1"]).to.equal(true)
             expect(VisibleRegions["Region2"]).to.equal(true)
             expect(VisibleRegions["Region3"]).to.equal(true)
+
+            VisibleRegions = RegionStateObject:GetVisibleRegions(Vector3.new(0, 0, 10))
+            expect(VisibleRegions["Region1"]).to.equal(nil)
+            expect(VisibleRegions["Region2"]).to.equal(nil)
+            expect(VisibleRegions["Region3"]).to.equal(nil)
+
+            RegionStateObject:SetVisibleWhenOutsideRegions("Region1")
+            RegionStateObject:SetVisibleWhenOutsideRegions("Region3")
+            expect(VisibleRegions["Region1"]).to.equal(true)
+            expect(VisibleRegions["Region2"]).to.equal(nil)
+            expect(VisibleRegions["Region3"]).to.equal(true)
         end)
 
         it("should error when connecting unknown regions.", function()

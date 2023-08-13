@@ -16,6 +16,7 @@ export type BaseRegionState = {
     IsRegionVisible: (self: BaseRegionState, RegionName: string) -> (boolean),
     AddRegion: (self: BaseRegionState, RegionName: string, Center: CFrame, Size: Vector3) -> (),
     ConnectRegions: (self: BaseRegionState, RegionName1: string, RegionName2: string) -> (),
+    SetVisibleWhenOutsideRegions: (self: BaseRegionState, RegionName: string) -> (),
     StartUpdating: (self: BaseRegionState) -> (),
 }
 
@@ -52,7 +53,6 @@ export type ModelCullingContext = {
     ModelCulling: ModelCulling,
     ModelParent: Instance,
     HiddenParts: {{Part: Instance, Parent: Instance}},
-    VisibleWhenOutsideRegions: boolean,
     FlatteningEnabled: boolean,
     ClusteringEnabled: boolean,
     ReparentOperationsPerStep: number?,
@@ -61,7 +61,6 @@ export type ModelCullingContext = {
     UnflattenableModelCache: {[Instance]: boolean},
 
     new: (Model: Instance, ModelCulling: ModelCulling) -> (ModelCullingContext),
-    MakeVisibleWhenOutsideRegions: (self: ModelCullingContext) -> (ModelCullingContext),
     EnableFlattening: (self: ModelCullingContext, OperationsPerStep: number?) -> (ModelCullingContext),
     EnableClustering: (self: ModelCullingContext, PartClusterSize: number?) -> (ModelCullingContext),
     AddFlatteningFilter: (self: ModelCullingContext, Filter: (Instance) -> (boolean, string?)) -> (ModelCullingContext),
