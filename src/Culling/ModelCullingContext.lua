@@ -52,10 +52,10 @@ function ModelCullingContext:EnableFlattening(OperationsPerStep: number?): Types
 
     --Create the folder.
     if not self.Model:FindFirstChild("StaticParts") then
-		local StaticParts = Instance.new("Folder")
-		StaticParts.Name = "StaticParts"
-		StaticParts.Parent = self.Model
-	end
+        local StaticParts = Instance.new("Folder")
+        StaticParts.Name = "StaticParts"
+        StaticParts.Parent = self.Model
+    end
 
     --Return the context.
     return (self :: any) :: Types.ModelCullingContext
@@ -127,55 +127,55 @@ function ModelCullingContext:FlattenModel(): ()
     if not StaticPartsFolder then return end
 
     --Move parts into the static parts model.
-	for _, Child in self.Model:GetChildren() do
-		if Child == StaticPartsFolder then continue end
-		if not self:CanFlattenCaching(Child) then
-			continue
-		end
-		
-		--Move characters out.
+    for _, Child in self.Model:GetChildren() do
+        if Child == StaticPartsFolder then continue end
+        if not self:CanFlattenCaching(Child) then
+            continue
+        end
+        
+        --Move characters out.
         if Child:FindFirstChildOfClass("Humanoid") then
             Child.Parent = StaticPartsFolder
             continue
         end
-		for _, Model in Child:GetDescendants() do
-			if not Model:FindFirstChildOfClass("Humanoid") then continue end
-			Model.Parent = StaticPartsFolder
-		end
+        for _, Model in Child:GetDescendants() do
+            if not Model:FindFirstChildOfClass("Humanoid") then continue end
+            Model.Parent = StaticPartsFolder
+        end
 
-		--Move the parts.
-		if Child:IsA("BasePart") then
-			Child.Parent = StaticPartsFolder
-		end
-		for _, Part in Child:GetDescendants() do
-			if not Part:IsA("BasePart") then continue end
-			Part.Parent = StaticPartsFolder
-		end
-	end
-	
-	--Attempt to cluster parts into models for less Parent changes.
+        --Move the parts.
+        if Child:IsA("BasePart") then
+            Child.Parent = StaticPartsFolder
+        end
+        for _, Part in Child:GetDescendants() do
+            if not Part:IsA("BasePart") then continue end
+            Part.Parent = StaticPartsFolder
+        end
+    end
+    
+    --Attempt to cluster parts into models for less Parent changes.
     if not self.ClusteringEnabled then return end
-	local Parts = {}
+    local Parts = {}
     local PartClusterSize = self.PartClusterSize or self.ModelCulling.PartClusterSize
     local HiddenGeometry = self.ModelCulling.HiddenGeometry
-	for _, Part in StaticPartsFolder:GetChildren() do
-		if Part:IsA("BasePart") then
-			table.insert(Parts, Part)
-		end
-	end
-	for i = 1, math.floor(#Parts / PartClusterSize) do
-		local ClusterFolder = Instance.new("Folder")
-		ClusterFolder.Name = "PartCluster"
+    for _, Part in StaticPartsFolder:GetChildren() do
+        if Part:IsA("BasePart") then
+            table.insert(Parts, Part)
+        end
+    end
+    for i = 1, math.floor(#Parts / PartClusterSize) do
+        local ClusterFolder = Instance.new("Folder")
+        ClusterFolder.Name = "PartCluster"
         if self.Model:IsDescendantOf(HiddenGeometry) then
-		    table.insert(self.HiddenParts, {Part = ClusterFolder, Parent = StaticPartsFolder})
+            table.insert(self.HiddenParts, {Part = ClusterFolder, Parent = StaticPartsFolder})
             ClusterFolder.Parent = HiddenGeometry
         else
             ClusterFolder.Parent = StaticPartsFolder
         end
-		for j = 1, PartClusterSize do
-			Parts[((i - 1) * PartClusterSize) + j].Parent = ClusterFolder
-		end
-	end
+        for j = 1, PartClusterSize do
+            Parts[((i - 1) * PartClusterSize) + j].Parent = ClusterFolder
+        end
+    end
 end
 
 --[[
