@@ -15,6 +15,7 @@ export type BaseRegionState = {
     IsRegionVisible: (self: BaseRegionState, RegionName: string) -> (boolean),
     AddRegion: (self: BaseRegionState, RegionName: string, Center: CFrame, Size: Vector3) -> (),
     ConnectRegions: (self: BaseRegionState, RegionName1: string, RegionName2: string) -> (),
+    StartUpdating: (self: BaseRegionState) -> (),
 }
 
 export type RegionState = {
@@ -22,7 +23,6 @@ export type RegionState = {
     InRegion: (self: RegionState, RegionName: string, Position: Vector3) -> (boolean),
     GetVisibleRegions: (self: RegionState, Position: Vector3) -> ({[string]: boolean}),
     UpdateVisibleRegions: (self: RegionState, Position: Vector3?) -> (),
-    StartUpdating: (self: RegionState) -> (),
 } & BaseRegionState
 
 export type BufferedRegionState = {

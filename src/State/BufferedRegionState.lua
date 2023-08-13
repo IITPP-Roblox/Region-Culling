@@ -92,6 +92,13 @@ function BufferedRegionState:ConnectRegions(RegionName1: string, RegionName2: st
     self.WrappedRegionState:ConnectRegions(RegionName1, RegionName2)
 end
 
+--[[
+Starts updating the visible regions.
+--]]
+function BufferedRegionState:StartUpdating(): ()
+    self.WrappedRegionState:StartUpdating()
+end
+
 
 
 return (BufferedRegionState :: any) :: Types.BufferedRegionState

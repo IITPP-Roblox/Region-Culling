@@ -16,8 +16,7 @@ local BufferedRegionState = require(RegionCulling:WaitForChild("State"):WaitForC
 
 
 --Create the state.
-local BaseRegionStateInstance = RegionState.new()
-local RegionStateInstance = BufferedRegionState.new(BaseRegionStateInstance)
+local RegionStateInstance = BufferedRegionState.new(RegionState.new())
 RegionStateInstance.HiddenRegionTimeout = 2
 local ModelCullingInstance = ModelCulling.new(RegionStateInstance)
 ModelCullingInstance.ReparentOperationsPerStep = 20
@@ -65,12 +64,12 @@ for X = -2, 2 do
         for _, Offset in {Vector2.new(0, -1), Vector2.new(0, 1), Vector2.new(-1, 0), Vector2.new(1, 0)} do
             local ConnectedName = tostring(X + Offset.X).."_"..tostring(Y + Offset.Y)
             if not Workspace:FindFirstChild(ConnectedName) then continue end
-            BaseRegionStateInstance:ConnectRegions(Name, ConnectedName)
+            RegionStateInstance:ConnectRegions(Name, ConnectedName)
         end
     end
 end
 
 --Start the loops.
-BaseRegionStateInstance:StartUpdating()
+RegionStateInstance:StartUpdating()
 ModelCullingInstance:StartProcessingQueue()
 ModelCullingInstance:StartModelFlattening()
