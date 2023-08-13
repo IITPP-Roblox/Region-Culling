@@ -8,18 +8,15 @@ Demo for the object culling.
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local RegionCulling = ReplicatedStorage:WaitForChild("RegionCulling")
-local ModelCulling = require(RegionCulling:WaitForChild("Culling"):WaitForChild("ModelCulling"))
-local RegionState = require(RegionCulling:WaitForChild("State"):WaitForChild("RegionState"))
-local BufferedRegionState = require(RegionCulling:WaitForChild("State"):WaitForChild("BufferedRegionState"))
+local RegionCulling = require(ReplicatedStorage:WaitForChild("RegionCulling"))
+local RegionState = RegionCulling.RegionState
+local ModelCulling = RegionCulling.ModelCulling
 
 
 
---Create the state.
-local RegionStateInstance = BufferedRegionState.new(RegionState.new())
-RegionStateInstance.HiddenRegionTimeout = 2
-local ModelCullingInstance = ModelCulling.new(RegionStateInstance)
-ModelCullingInstance.ReparentOperationsPerStep = 20
+--Set the test values that apply to all models.
+RegionState.HiddenRegionTimeout = 2
+ModelCulling.ReparentOperationsPerStep = 20
 
 --Create the regions.
 for X = -2, 2 do
@@ -49,8 +46,8 @@ for X = -2, 2 do
             Part.Parent = Model 
         end
 
-        RegionStateInstance:AddRegion(Name, CenterCFrame, Vector3.new(20, 20, 20))
-        local Context = ModelCullingInstance:BindModelToRegion(Name, Model):EnableFlattening():EnableClustering(5)
+        RegionState:AddRegion(Name, CenterCFrame, Vector3.new(20, 20, 20))
+        local Context = ModelCulling:BindModelToRegion(Name, Model):EnableFlattening():EnableClustering(5)
         if X == -2 or X == 2 or Y == -2 or Y == 2 then
             Context:MakeVisibleWhenOutsideRegions()
         end
@@ -64,12 +61,11 @@ for X = -2, 2 do
         for _, Offset in {Vector2.new(0, -1), Vector2.new(0, 1), Vector2.new(-1, 0), Vector2.new(1, 0)} do
             local ConnectedName = tostring(X + Offset.X).."_"..tostring(Y + Offset.Y)
             if not Workspace:FindFirstChild(ConnectedName) then continue end
-            RegionStateInstance:ConnectRegions(Name, ConnectedName)
+            RegionState:ConnectRegions(Name, ConnectedName)
         end
     end
 end
 
 --Start the loops.
-RegionStateInstance:StartUpdating()
-ModelCullingInstance:StartProcessingQueue()
-ModelCullingInstance:StartModelFlattening()
+--Can be done before or after adding models, but must be after creating regions.
+RegionCulling:Start()
