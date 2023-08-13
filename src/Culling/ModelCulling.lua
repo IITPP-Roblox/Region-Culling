@@ -58,7 +58,6 @@ Handles a model being added.
 function ModelCulling:HandleInitialModel(RegionName: string, Context: Types.ModelCullingContext): ()
     local VisibleRegions = self.RegionState:GetCurrentVisibleRegions()
     if not self.RegionState:IsRegionVisible(RegionName) and not (#VisibleRegions == 0 and Context.VisibleWhenOutsideRegions) then
-        Context:FlattenModel()
         table.insert(self.QueuedOperations, {
             RegionName = RegionName,
             Operation = "Hide",
@@ -81,6 +80,7 @@ function ModelCulling:BindModelToRegion(RegionName: string, Model: Instance): Ty
     --Hide the model if it isn't meant to be visible.
     --Done after 1 second to allow for configuration and prevent Roblox locking the parent of new models.
     task.delay(1, function()
+        Context:FlattenModel()
         self:HandleInitialModel(RegionName, Context)
     end)
 
