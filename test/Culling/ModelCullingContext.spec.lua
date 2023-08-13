@@ -124,5 +124,21 @@ return function()
             expect(#Model:WaitForChild("StaticParts"):GetDescendants()).to.equal(20)
             expect(Model.Parent).to.equal(nil)
         end)
+
+        it("should flatten models with clustering while hidden and properly show them again.", function()
+            ModelCullingContextObject:HideModel(50)
+            ModelCullingContextObject:EnableFlattening():EnableClustering(5)
+            local StaticParts = Model:WaitForChild("StaticParts") :: Model
+            ModelCullingContextObject:FlattenModel()
+
+            expect(#Model:GetChildren()).to.equal(1)
+            expect(#StaticParts:GetChildren()).to.equal(0)
+            ModelCullingContextObject:ShowModel(50)
+            expect(#StaticParts:GetChildren()).to.equal(4)
+            expect(#StaticParts:GetChildren()[1]:GetChildren()).to.equal(5)
+            expect(#StaticParts:GetChildren()[2]:GetChildren()).to.equal(5)
+            expect(#StaticParts:GetChildren()[3]:GetChildren()).to.equal(5)
+            expect(#StaticParts:GetChildren()[4]:GetChildren()).to.equal(5)
+        end)
     end)
 end

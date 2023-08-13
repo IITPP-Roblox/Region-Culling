@@ -157,6 +157,7 @@ function ModelCullingContext:FlattenModel(): ()
     if not self.ClusteringEnabled then return end
 	local Parts = {}
     local PartClusterSize = self.PartClusterSize or self.ModelCulling.PartClusterSize
+    local HiddenGeometry = self.ModelCulling.HiddenGeometry
 	for _, Part in StaticPartsFolder:GetChildren() do
 		if Part:IsA("BasePart") then
 			table.insert(Parts, Part)
@@ -165,7 +166,12 @@ function ModelCullingContext:FlattenModel(): ()
 	for i = 1, math.floor(#Parts / PartClusterSize) do
 		local ClusterFolder = Instance.new("Folder")
 		ClusterFolder.Name = "PartCluster"
-		ClusterFolder.Parent = StaticPartsFolder
+        if self.Model:IsDescendantOf(HiddenGeometry) then
+		    table.insert(self.HiddenParts, {Part = ClusterFolder, Parent = StaticPartsFolder})
+            ClusterFolder.Parent = HiddenGeometry
+        else
+            ClusterFolder.Parent = StaticPartsFolder
+        end
 		for j = 1, PartClusterSize do
 			Parts[((i - 1) * PartClusterSize) + j].Parent = ClusterFolder
 		end
