@@ -39,8 +39,8 @@ RegionState:SetVisibleWhenOutsideRegions("Region3")
 
 --Make it so region 1 can see 2 and 3.
 --ConnectRegions makes it so both regions can see each other.
-RegionStateObject:ConnectRegions("Region1", "Region2")
-RegionStateObject:ConnectRegions("Region1", "Region3")
+RegionState:ConnectRegions("Region1", "Region2")
+RegionState:ConnectRegions("Region1", "Region3")
 
 --Set up the models (next section)
 
