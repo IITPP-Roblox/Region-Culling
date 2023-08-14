@@ -67,8 +67,9 @@ local IsVisible = RegionState:IsRegionVisible("Region1") --Bool for if a region 
 local InRegion = RegionState:IsInRegion("Region1", Vector3.new()) --Bool for if a point is in a region
 ```
 
-#### Quicker Region Setup
+#### Secondary Region Setup
 `RegionState` offers an additional method that makes it easier to create a centralized folder of "Regions" that you can easily customize, expand, rotate, resize, and re-position. 
+Depending on use cases, a variety of ways to setup regions is possible. 
 ```
 Regions : Instance
 |- Region1 : Instance
