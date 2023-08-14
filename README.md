@@ -69,7 +69,8 @@ local InRegion = RegionState:IsInRegion("Region1", Vector3.new()) --Bool for if 
 
 #### Secondary Region Setup
 `RegionState` offers an additional method that makes it easier to create a centralized folder of "Regions" that you can easily customize, expand, rotate, resize, and re-position. 
-Depending on use cases, a variety of ways to setup regions is possible. 
+Depending on use cases, a variety of ways to setup regions is possible. One way is by storing additional regions that can allow you to expand a previous region to an easily customizable size. 
+When rooms are not entire models this may be of use as it allows such behavior.
 ```
 Regions : Instance
 |- Region1 : Instance
