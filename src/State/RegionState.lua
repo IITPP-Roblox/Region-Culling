@@ -101,6 +101,9 @@ easier customization.
 Name each region with the appropriate title and then add parts to determine their region.
 --]]
 function RegionState:InsertRegionsFromInstance(Instances: Model | Folder | Instance): ()
+	if #Instances:GetChildren() == 0 then
+		error("Instance \"" .. Instances:GetFullName() .. "\" has no child instances, unable to build Regions from it.")
+	end
 	for _, RegionParent in Instances:GetChildren() do 
 		--Get the region name from the child name
 		local RegionName = RegionParent.Name
@@ -110,6 +113,9 @@ function RegionState:InsertRegionsFromInstance(Instances: Model | Folder | Insta
 			end
 		end
 	end
+	--// TODO
+	--// Perform region checks to maybe auto-connect intersecting regions? 
+	--// May not apply to all regions however.
 end
 
 --[[
