@@ -67,7 +67,7 @@ local IsVisible = RegionState:IsRegionVisible("Region1") --Bool for if a region 
 local InRegion = RegionState:IsInRegion("Region1", Vector3.new()) --Bool for if a point is in a region
 ```
 
-## Quicker Region Setup
+#### Quicker Region Setup
 `RegionState` offers an additional method that makes it easier to create a centralized folder of "Regions" that you can easily customize, expand, rotate, resize, and re-position. 
 ```
 Regions : Instance
@@ -79,10 +79,11 @@ Regions : Instance
 ```
 Using the instance above as an example,
 ```lua
-local RegionCulling = require(game:GetService("ReplicatedStorage"):WaitForChild("RegionCulling"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RegionCulling = require(ReplicatedStorage:WaitForChild("RegionCulling"))
 local RegionState = RegionCulling.RegionState
 
-RegionState:InsertRegionsFromInstance(game.ServerStorage.Regions)
+RegionState:InsertRegionsFromInstance(ReplicatedStorage:WaitForChild("Regions"))
 --// RegionCulling will generate all regions based on the provided instances.
 ```
 
