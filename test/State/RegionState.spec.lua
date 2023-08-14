@@ -142,5 +142,19 @@ return function()
             expect(RegionStateObject:IsRegionVisible("Region2")).to.equal(false)
             expect(RegionStateObject:IsRegionVisible("Region3")).to.equal(false)
         end)
+
+        it("should build regions from parts", function()
+            local InstanceTree = Instance.new("Folder")
+            InstanceTree.Name = "Regions"
+            local Region4 = Instance.new("Model", InstanceTree)
+            Region4.Name = "Region4"
+            local BasePart = Instance.new("BasePart", Region4)
+            BasePart.CFrame = CFrame.new(0, 4, 0)
+            BasePart.Size = Vector3.new(2, 2, 2)
+                    
+            RegionStateObject:InsertRegionsFromInstance(InstanceTree)
+            expect(RegionStateObject.Regions["Region4"]).never.to.equal(nil)
+            expect(RegionStateObject:IsInRegion("Region4", Vector3.new(0, 1, 0))).to.equal(true)
+        end)
     end)
 end
