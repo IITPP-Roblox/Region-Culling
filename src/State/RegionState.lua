@@ -107,15 +107,14 @@ function RegionState:InsertRegionsFromInstance(Instances: Model | Folder | Insta
 	for _, RegionParent in Instances:GetChildren() do 
 		--Get the region name from the child name
 		local RegionName = RegionParent.Name
-		for _, RegionPart in RegionParent:GetChildren() do 
-			if RegionPart:IsA("BasePart") then
-				self:AddRegion(RegionName, RegionPart.CFrame, RegionPart.Size)
+		for _, Inst in RegionParent:GetChildren() do 
+			if not Inst:IsA("BasePart") then
+				continue
 			end
+			local RegionPart : BasePart = Inst :: BasePart
+			self:AddRegion(RegionName, RegionPart.CFrame, RegionPart.Size)
 		end
 	end
-	--// TODO
-	--// Perform region checks to maybe auto-connect intersecting regions? 
-	--// May not apply to all regions however.
 end
 
 --[[
