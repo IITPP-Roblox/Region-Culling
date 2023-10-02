@@ -102,16 +102,16 @@ ModelCulling.PartClusterSize = 75
 --Bind models.
 --Multiple models can be found to a region.
 --Can be safely done before and after starting the update loops.
-local Context1 = ModelCulling:BindModelToRegion("Region1", game:GetService("Workspace"):WaitForChil("Model1"))
+local Context1 = ModelCulling:BindModelToRegion("Region1", game:GetService("Workspace"):WaitForChild("Model1"))
 Context1:EnableFlattening() --Enables model flattening with the default reparent operations per step.
 Context1:EnableClustering() --Enables clustering while flattening with the default cluster size.
 
-local Context2 = ModelCulling:BindModelToRegion("Region2", game:GetService("Workspace"):WaitForChil("Model2"))
+local Context2 = ModelCulling:BindModelToRegion("Region2", game:GetService("Workspace"):WaitForChild("Model2"))
 Context2:EnableFlattening(500) --Enables model flattening with a custom reparent operations per step.
 Context2:EnableClustering(100) --Enables clustering while flattening a custom default cluster size.
 
-local Context3 = ModelCulling:BindModelToRegion("Region2", game:GetService("Workspace"):WaitForChil("Model2A"))
---Context2:EnableFlattening() --Flattening is NOTT enabled. EnableClustering() has no effect without EnableFlattening().
+local Context3 = ModelCulling:BindModelToRegion("Region2", game:GetService("Workspace"):WaitForChild("Model2A"))
+--Context2:EnableFlattening() --Flattening is NOT enabled. EnableClustering() has no effect without EnableFlattening().
 
 --Add filters for what parts to flatten.
 --Filters return true if an instance can be flattened, with an optioanl string saying why they can't.
