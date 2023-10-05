@@ -96,6 +96,28 @@ function RegionState:AddRegion(RegionName: string, Center: CFrame, Size: Vector3
 end
 
 --[[
+Creates regions based on a pre-determined model/folder, provides for quicker setup &
+easier customization. 
+Name each region with the appropriate title and then add parts to determine their region.
+--]]
+function RegionState:InsertRegionsFromInstance(Instances: Model | Folder | Instance): ()
+	if #Instances:GetChildren() == 0 then
+		error("Instance \"" .. Instances:GetFullName() .. "\" has no child instances, unable to build Regions from it.")
+	end
+	for _, RegionParent in Instances:GetChildren() do 
+		--Get the region name from the child name
+		local RegionName = RegionParent.Name
+		for _, Inst in RegionParent:GetChildren() do 
+			if not Inst:IsA("BasePart") then
+				continue
+			end
+			local RegionPart : BasePart = Inst :: BasePart
+			self:AddRegion(RegionName, RegionPart.CFrame, RegionPart.Size)
+		end
+	end
+end
+
+--[[
 Marks a region as visible to another.
 --]]
 function RegionState:ConnectRegions(RegionName1: string, RegionName2: string): ()

@@ -39,8 +39,8 @@ RegionState:SetVisibleWhenOutsideRegions("Region3")
 
 --Make it so region 1 can see 2 and 3.
 --ConnectRegions makes it so both regions can see each other.
-RegionStateObject:ConnectRegions("Region1", "Region2")
-RegionStateObject:ConnectRegions("Region1", "Region3")
+RegionState:ConnectRegions("Region1", "Region2")
+RegionState:ConnectRegions("Region1", "Region3")
 
 --Set up the models (next section)
 
@@ -65,6 +65,28 @@ RegionState.RegionHidden:Connect(function(RegionName: string) ... end)
 local VisibleRegions = RegionState:GetCurrentVisibleRegions() --List of the region names that are visible
 local IsVisible = RegionState:IsRegionVisible("Region1") --Bool for if a region is visible
 local InRegion = RegionState:IsInRegion("Region1", Vector3.new()) --Bool for if a point is in a region
+```
+
+#### Secondary Region Setup
+`RegionState` offers an additional method that makes it easier to create a centralized folder of "Regions" that you can easily customize, expand, rotate, resize, and re-position. 
+Depending on use cases, a variety of ways to setup regions is possible. One way is by storing additional regions that can allow you to expand a previous region to an easily customizable size. 
+When rooms are not entire models this may be of use as it allows such behavior.
+```
+Regions : Instance
+|- Region1 : Instance
+|  |-- ZonePart : BasePart
+|  |-- ZonePart : BasePart
+|- Region2 : Instance
+|  |-- ZonePart : BasePart
+```
+Using the instance above as an example,
+```lua
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RegionCulling = require(ReplicatedStorage:WaitForChild("RegionCulling"))
+local RegionState = RegionCulling.RegionState
+
+RegionState:InsertRegionsFromInstance(ReplicatedStorage:WaitForChild("Regions"))
+--// RegionCulling will generate all regions based on the provided instances.
 ```
 
 ## ModelCulling

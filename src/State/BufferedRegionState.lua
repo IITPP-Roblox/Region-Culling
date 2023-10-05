@@ -93,6 +93,15 @@ function BufferedRegionState:AddRegion(RegionName: string, Center: CFrame, Size:
 end
 
 --[[
+Creates regions based on a pre-determined model/folder, provides for quicker setup &
+easier customization. 
+Name each region with the appropriate title and then add parts to determine their region.
+--]]
+function BufferedRegionState:InsertRegionsFromInstance(Instances: Model | Folder | Instance): ()
+    self.WrappedRegionState:InsertRegionsFromInstance(Instances)
+end
+
+--[[
 Marks a region as visible to another.
 --]]
 function BufferedRegionState:ConnectRegions(RegionName1: string, RegionName2: string): ()
