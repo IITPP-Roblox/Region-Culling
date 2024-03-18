@@ -142,5 +142,14 @@ return function()
             expect(RegionStateObject:IsRegionVisible("Region2")).to.equal(false)
             expect(RegionStateObject:IsRegionVisible("Region3")).to.equal(false)
         end)
+
+        it("should allow for function-based regions.", function()
+            RegionStateObject:AddRegionFunction("FunctionRegion", function(Position: CFrame): boolean
+                return Position.X == Position.Y
+            end)
+
+            expect(RegionStateObject:IsInRegion("FunctionRegion", Vector3.new(5, 5, 0))).to.equal(true)
+            expect(RegionStateObject:IsInRegion("FunctionRegion", Vector3.new(4, 5, 0))).to.equal(false)
+        end)
     end)
 end

@@ -35,10 +35,8 @@ Returns if a point is in a region.
 function RegionState:IsInRegion(RegionName: string, Position: Vector3): boolean
     local PositionCFrame = CFrame.new(Position)
     if not self.Regions[RegionName] then return false end
-    for _, Zone in self.Regions[RegionName].Zones do
-        local Size = Zone.Size
-        local RelativeCFrame = Zone.Center:Inverse() * PositionCFrame
-        if math.abs(RelativeCFrame.X) > Size.X / 2 or math.abs(RelativeCFrame.Y) > Size.Y / 2 or math.abs(RelativeCFrame.Z) > Size.Z / 2 then continue end
+    for _, InRegionFunction in self.Regions[RegionName].InRegionFunctions do
+        if not InRegionFunction(PositionCFrame) then continue end
         return true
     end
     return false
@@ -79,20 +77,28 @@ function RegionState:IsRegionVisible(RegionName: string): boolean
 end
 
 --[[
+Adds a region with a function for if the CFrame is in the region.
+Region names can be non-unique.
+--]]
+function RegionState:AddRegionFunction(RegionName: string, InRegionFunction: (Position: CFrame) -> (boolean)): ()
+    if not self.Regions[RegionName] then
+        self.Regions[RegionName] = {
+            InRegionFunctions = {},
+            VisibleRegions = {},
+        }
+    end
+    table.insert(self.Regions[RegionName].InRegionFunctions, InRegionFunction)
+end
+
+--[[
 Adds a region with a given center and size.
 Region names can be non-unique.
 --]]
 function RegionState:AddRegion(RegionName: string, Center: CFrame, Size: Vector3): ()
-    if not self.Regions[RegionName] then
-        self.Regions[RegionName] = {
-            Zones = {},
-            VisibleRegions = {},
-        }
-    end
-    table.insert(self.Regions[RegionName].Zones, {
-        Center = Center,
-        Size = Size,
-    })
+    self:AddRegionFunction(RegionName, function(Position: CFrame): boolean
+        local RelativeCFrame = Center:Inverse() * Position
+        return math.abs(RelativeCFrame.X) <= Size.X / 2 and math.abs(RelativeCFrame.Y) <= Size.Y / 2 and math.abs(RelativeCFrame.Z) <= Size.Z / 2
+    end)
 end
 
 --[[

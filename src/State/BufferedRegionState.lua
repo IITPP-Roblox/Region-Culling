@@ -85,6 +85,14 @@ function BufferedRegionState:IsRegionVisible(RegionName: string): boolean
 end
 
 --[[
+Adds a region with a function for if the CFrame is in the region.
+Region names can be non-unique.
+--]]
+function BufferedRegionState:AddRegionFunction(RegionName: string, InRegionFunction: (Position: CFrame) -> (boolean)): ()
+    self.WrappedRegionState:AddRegionFunction(RegionName, InRegionFunction)
+end
+
+--[[
 Adds a region with a given center and size.
 Region names can be non-unique.
 --]]

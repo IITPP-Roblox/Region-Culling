@@ -34,7 +34,9 @@ RegionState.HiddenRegionTimeout = 2
 RegionState:AddRegion("Region1", CFrame.new(0, 0, 0), Vector3.new(2, 2, 2))
 RegionState:AddRegion("Region1", CFrame.new(0, 4, 0), Vector3.new(2, 2, 2))
 RegionState:AddRegion("Region2", CFrame.new(0, 0, 4), Vector3.new(2, 2, 2))
-RegionState:AddRegion("Region3", CFrame.new(0, 0, 6), Vector3.new(2, 2, 2))
+RegionState:AddRegionFunction("Region3", function(Position: CFrame): boolean --Function-based regions can be used for custom cases.
+    return Position.Position.Magnitude < 10
+end)
 RegionState:SetVisibleWhenOutsideRegions("Region3")
 
 --Make it so region 1 can see 2 and 3.
