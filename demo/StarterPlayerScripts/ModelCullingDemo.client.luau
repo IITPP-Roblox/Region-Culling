@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Demo for the object culling.
---]]
+--Demo for the object culling.
 --!strict
 
 local Workspace = game:GetService("Workspace")
@@ -21,7 +17,7 @@ ModelCulling.ReparentOperationsPerStep = 20
 --Create the regions.
 for X = -2, 2 do
     for Y = -2, 2 do
-        local Name = tostring(X).."_"..tostring(Y)
+        local Name = `{X}_{Y}`
         local Model = Instance.new("Model")
         Model.Name = Name
         Model.Parent = Workspace
@@ -57,9 +53,9 @@ end
 --Connect the regions.
 for X = -2, 2 do
     for Y = -2, 2 do
-        local Name = tostring(X).."_"..tostring(Y)
+        local Name = `{X}_{Y}`
         for _, Offset in {Vector2.new(0, -1), Vector2.new(0, 1), Vector2.new(-1, 0), Vector2.new(1, 0)} do
-            local ConnectedName = tostring(X + Offset.X).."_"..tostring(Y + Offset.Y)
+            local ConnectedName = `{X + Offset.X}_{Y + Offset.Y}`
             if not Workspace:FindFirstChild(ConnectedName) then continue end
             RegionState:ConnectRegions(Name, ConnectedName)
         end

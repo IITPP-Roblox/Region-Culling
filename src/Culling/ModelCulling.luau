@@ -1,26 +1,38 @@
---[[
-TheNexusAvenger
-
-Controls showing and hiding of models.
---]]
+--Controls showing and hiding of models.
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ModelCullingContext = require(script.Parent:WaitForChild("ModelCullingContext"))
-local Types = require(script.Parent.Parent:WaitForChild("Types"))
+local RegionState = require(script.Parent.Parent:WaitForChild("State"):WaitForChild("RegionState"))
 
 local ModelCulling = {}
 ModelCulling.__index = ModelCulling
+
+export type ModelCullingOperation = {
+    RegionName: string,
+    Operation: string,
+    Context: ModelCullingContext.ModelCullingContext,
+}
+export type ModelCulling = {
+    RegionState: RegionState.RegionState,
+    ReparentOperationsPerStep: number,
+    PartClusterSize: number,
+    ProcessStepDelay: number,
+    PassiveModelFlattenDelay: number,
+    HiddenGeometry: Folder,
+    Contexts: {[string]: {ModelCullingContext.ModelCullingContext}},
+    QueuedOperations: {ModelCullingOperation},
+} & typeof(setmetatable({}, ModelCulling))
 
 
 
 --[[
 Creates a model culling controller.
 --]]
-function ModelCulling.new(RegionState: Types.BaseRegionState): Types.ModelCulling
+function ModelCulling.new(RegionState: RegionState.RegionState): ModelCulling
     --Create the object.
-    local self = (setmetatable({
+    local self = setmetatable({
         RegionState = RegionState,
         ReparentOperationsPerStep = 250,
         PartClusterSize = 50,
@@ -28,7 +40,7 @@ function ModelCulling.new(RegionState: Types.BaseRegionState): Types.ModelCullin
         PassiveModelFlattenDelay = 5,
         Contexts = {},
         QueuedOperations = {},
-    }, ModelCulling) :: any) :: Types.ModelCulling
+    }, ModelCulling) :: ModelCulling
 
     --Create the hidden geometry folder.
     --ReplicatedStorage is used to ensure replication still happens.
@@ -54,7 +66,7 @@ end
 --[[
 Handles a model being added.
 --]]
-function ModelCulling:HandleInitialModel(RegionName: string, Context: Types.ModelCullingContext): ()
+function ModelCulling.HandleInitialModel(self: ModelCulling, RegionName: string, Context: ModelCullingContext.ModelCullingContext): ()
     if not self.RegionState:IsRegionVisible(RegionName) then
         table.insert(self.QueuedOperations, {
             RegionName = RegionName,
@@ -67,7 +79,7 @@ end
 --[[
 Binds a model to a region. Returns a context for further configuring.
 --]]
-function ModelCulling:BindModelToRegion(RegionName: string, Model: Instance): Types.ModelCullingContext
+function ModelCulling.BindModelToRegion(self: ModelCulling, RegionName: string, Model: Instance): ModelCullingContext.ModelCullingContext
     --Create the context.
     local Context = ModelCullingContext.new(Model, self)
     if not self.Contexts[RegionName] then
@@ -89,7 +101,7 @@ end
 --[[
 Removes queued operations for a region.
 --]]
-function ModelCulling:RemoveQueuedOperations(RegionName: string): ()
+function ModelCulling.RemoveQueuedOperations(self: ModelCulling, RegionName: string): ()
     for i = #self.QueuedOperations, 1, -1 do
         if self.QueuedOperations[i].RegionName ~= RegionName then continue end
         table.remove(self.QueuedOperations, i)
@@ -99,7 +111,7 @@ end
 --[[
 Gets the summary of all the stored models.
 --]]
-function ModelCulling:GetSummary(): {[string]: {Types.ModelCullingContextSummary}}
+function ModelCulling.GetSummary(self: ModelCulling): {[string]: {ModelCullingContext.ModelCullingContextSummary}}
     local Summaries = {}
     for RegionName, Contexts in self.Contexts do
         Summaries[RegionName] = {}
@@ -113,7 +125,7 @@ end
 --[[
 Queues a region to be hidden.
 --]]
-function ModelCulling:HideRegion(RegionName: string): ()
+function ModelCulling.HideRegion(self: ModelCulling, RegionName: string): ()
     self:RemoveQueuedOperations(RegionName)
     if self.Contexts[RegionName] then
         for _, Context in self.Contexts[RegionName] do
@@ -129,7 +141,7 @@ end
 --[[
 Queues a region to be shown.
 --]]
-function ModelCulling:ShowRegion(RegionName: string): ()
+function ModelCulling.ShowRegion(self: ModelCulling, RegionName: string): ()
     self:RemoveQueuedOperations(RegionName)
     if self.Contexts[RegionName] then
         for _, Context in self.Contexts[RegionName] do
@@ -145,7 +157,7 @@ end
 --[[
 Processes a single step of operations of the queue.
 --]]
-function ModelCulling:PerformQueueStep(): ()
+function ModelCulling.PerformQueueStep(self: ModelCulling): ()
     --Get the initial operations to perform.
     local RemainingOperations = self.ReparentOperationsPerStep
     for _, PendingOperation in self.QueuedOperations do
@@ -177,7 +189,7 @@ end
 --[[
 Starts processing the queue.
 --]]
-function ModelCulling:StartProcessingQueue(): ()
+function ModelCulling.StartProcessingQueue(self: ModelCulling): ()
     --Start the loop.
     task.spawn(function()
         while true do
@@ -198,7 +210,7 @@ end
 Starts passively flattening models in the background.
 Only intended for models that change (such as StreamingEnabled).
 --]]
-function ModelCulling:StartModelFlattening(): ()
+function ModelCulling.StartModelFlattening(self: ModelCulling): ()
     task.spawn(function()
         while true do
             for RegionName, Contexts in self.Contexts do
@@ -214,4 +226,4 @@ end
 
 
 
-return (ModelCulling :: any) :: Types.ModelCulling
+return ModelCulling

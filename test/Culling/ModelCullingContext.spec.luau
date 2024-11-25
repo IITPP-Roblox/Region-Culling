@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Tests the ModelCullingContext class.
---]]
+--Tests the ModelCullingContext class.
 --!strict
 
 local ModelCullingContext = require(game:GetService("ReplicatedStorage"):WaitForChild("RegionCulling"):WaitForChild("Culling"):WaitForChild("ModelCullingContext"))
