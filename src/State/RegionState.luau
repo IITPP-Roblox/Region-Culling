@@ -1,38 +1,45 @@
---[[
-TheNexusAvenger
-
-Stores regions and controls which are relevant.
---]]
+--Stores regions and controls which are relevant.
 --!strict
 
 local Workspace = game:GetService("Workspace")
 
 local Event = require(script.Parent.Parent:WaitForChild("Event"))
-local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
 local RegionState = {}
 RegionState.__index = RegionState
+
+export type RegionState = {
+    Regions: {[string]: {
+        InRegionFunctions: {(CFrame) -> (boolean)},
+        VisibleRegions: {string},
+    }},
+    VisibleWhenOutsideRegionsMap: {[string]: boolean},
+    CurrentVisibleRegionsMap: {[string]: boolean},
+    CurrentVisibleRegions: {string},
+    RegionVisible: Event.Event<string>,
+    RegionHidden: Event.Event<string>,
+} & typeof(setmetatable({}, RegionState))
 
 
 
 --[[
 Creates a region state.
 --]]
-function RegionState.new(): Types.RegionState
-    return (setmetatable({
+function RegionState.new(): RegionState
+    return setmetatable({
         Regions = {},
         VisibleWhenOutsideRegionsMap = {},
         CurrentVisibleRegionsMap = {},
         CurrentVisibleRegions = {},
         RegionVisible = Event.new() :: Event.Event<string>,
         RegionHidden = Event.new() :: Event.Event<string>,
-    }, RegionState) :: any) :: Types.RegionState
+    }, RegionState) :: RegionState
 end
 
 --[[
 Returns if a point is in a region.
 --]]
-function RegionState:IsInRegion(RegionName: string, Position: Vector3): boolean
+function RegionState.IsInRegion(self: RegionState, RegionName: string, Position: Vector3): boolean
     local PositionCFrame = CFrame.new(Position)
     if not self.Regions[RegionName] then return false end
     for _, InRegionFunction in self.Regions[RegionName].InRegionFunctions do
@@ -45,7 +52,7 @@ end
 --[[
 Returns a dictionary of the visible regions.
 --]]
-function RegionState:GetVisibleRegions(Position: Vector3): {[string]: boolean}
+function RegionState.GetVisibleRegions(self: RegionState, Position: Vector3): {[string]: boolean}
     local VisibleRegionsMap = {}
     local InRegions = false
     for RegionName, RegionData in self.Regions do
@@ -65,14 +72,14 @@ end
 --[[
 Returns a list of the current visible regions.
 --]]
-function RegionState:GetCurrentVisibleRegions(): {string}
+function RegionState.GetCurrentVisibleRegions(self: RegionState): {string}
     return self.CurrentVisibleRegions
 end
 
 --[[
 Returns if a region is currently visible.
 --]]
-function RegionState:IsRegionVisible(RegionName: string): boolean
+function RegionState.IsRegionVisible(self: RegionState, RegionName: string): boolean
     return self.CurrentVisibleRegionsMap[RegionName] == true
 end
 
@@ -80,7 +87,7 @@ end
 Adds a region with a function for if the CFrame is in the region.
 Region names can be non-unique.
 --]]
-function RegionState:AddRegionFunction(RegionName: string, InRegionFunction: (Position: CFrame) -> (boolean)): ()
+function RegionState.AddRegionFunction(self: RegionState, RegionName: string, InRegionFunction: (Position: CFrame) -> (boolean)): ()
     if not self.Regions[RegionName] then
         self.Regions[RegionName] = {
             InRegionFunctions = {},
@@ -94,7 +101,7 @@ end
 Adds a region with a given center and size.
 Region names can be non-unique.
 --]]
-function RegionState:AddRegion(RegionName: string, Center: CFrame, Size: Vector3): ()
+function RegionState.AddRegion(self: RegionState, RegionName: string, Center: CFrame, Size: Vector3): ()
     self:AddRegionFunction(RegionName, function(Position: CFrame): boolean
         local RelativeCFrame = Center:Inverse() * Position
         return math.abs(RelativeCFrame.X) <= Size.X / 2 and math.abs(RelativeCFrame.Y) <= Size.Y / 2 and math.abs(RelativeCFrame.Z) <= Size.Z / 2
@@ -104,12 +111,12 @@ end
 --[[
 Marks a region as visible to another.
 --]]
-function RegionState:ConnectRegions(RegionName1: string, RegionName2: string): ()
+function RegionState.ConnectRegions(self: RegionState, RegionName1: string, RegionName2: string): ()
     if not self.Regions[RegionName1] then
-        error("Region \""..tostring(RegionName1).."\" does not exist.")
+        error(`Region "{RegionName1}" does not exist.`)
     end
     if not self.Regions[RegionName2] then
-        error("Region \""..tostring(RegionName2).."\" does not exist.")
+        error(`Region "{RegionName2}" does not exist.`)
     end
     table.insert(self.Regions[RegionName1].VisibleRegions, RegionName2)
     table.insert(self.Regions[RegionName2].VisibleRegions, RegionName1)
@@ -118,14 +125,14 @@ end
 --[[
 Marks a region as visible when the player is outside all regions.
 --]]
-function RegionState:SetVisibleWhenOutsideRegions(RegionName: string): ()
+function RegionState.SetVisibleWhenOutsideRegions(self: RegionState, RegionName: string): ()
     self.VisibleWhenOutsideRegionsMap[RegionName] = true
 end
 
 --[[
 Updates the visible regions.
 --]]
-function RegionState:UpdateVisibleRegions(Position: Vector3?): ()
+function RegionState.UpdateVisibleRegions(self: RegionState, Position: Vector3?): ()
     --Get the visible regions.
     local CurrentVisibleRegionsMap = self.CurrentVisibleRegionsMap
     local NewRegions = self:GetVisibleRegions(Position or Workspace.CurrentCamera:GetRenderCFrame().Position)
@@ -156,7 +163,7 @@ end
 --[[
 Starts updating the visible regions.
 --]]
-function RegionState:StartUpdating(): ()
+function RegionState.StartUpdating(self: RegionState): ()
     self:UpdateVisibleRegions()
     task.spawn(function()
         while true do
@@ -168,4 +175,4 @@ end
 
 
 
-return (RegionState :: any) :: Types.RegionState
+return RegionState

@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Tests the RegionState class.
---]]
+--Tests the RegionState class.
 --!strict
 
 local RegionState = require(game:GetService("ReplicatedStorage"):WaitForChild("RegionCulling"):WaitForChild("State"):WaitForChild("RegionState"))

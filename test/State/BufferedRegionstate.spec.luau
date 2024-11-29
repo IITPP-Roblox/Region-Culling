@@ -1,8 +1,4 @@
---[[
-TheNexusAvenger
-
-Tests the BufferedRegionState class.
---]]
+--Tests the BufferedRegionState class.
 --!strict
 
 local Event = require(game:GetService("ReplicatedStorage"):WaitForChild("RegionCulling"):WaitForChild("Event"))

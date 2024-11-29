@@ -1,22 +1,39 @@
---[[
-TheNexusAvenger
-
-Context for configuring the culling of a model.
---]]
+--Context for configuring the culling of a model.
 --!strict
-
-local Types = require(script.Parent.Parent:WaitForChild("Types"))
 
 local ModelCullingContext = {}
 ModelCullingContext.__index = ModelCullingContext
+
+export type ModelCullingIssue = {
+    Instance: Instance,
+    Issues: {string},
+}
+export type ModelCullingContextSummary = {
+    Model: Instance,
+    FlattenedParts: number,
+    UnflattenedParts: number,
+    Issues: {ModelCullingIssue},
+}
+export type ModelCullingContext = {
+    Model: Instance,
+    ModelCulling: any,
+    ModelParent: Instance,
+    HiddenParts: {{Part: Instance, Parent: Instance}},
+    FlatteningEnabled: boolean,
+    ClusteringEnabled: boolean,
+    ReparentOperationsPerStep: number?,
+    PartClusterSize: number?,
+    FlatteningFilters: {(Instance) -> (boolean, string?)},
+    UnflattenableModelCache: {[Instance]: boolean},
+} & typeof(setmetatable({}, ModelCullingContext))
 
 
 
 --[[
 Creates a model culling context.
 --]]
-function ModelCullingContext.new(Model: Instance, ModelCulling: Types.ModelCulling): Types.ModelCullingContext
-    return (setmetatable({
+function ModelCullingContext.new(Model: Instance, ModelCulling: any): ModelCullingContext
+    return setmetatable({
         Model = Model,
         ModelCulling = ModelCulling,
         ModelParent = Model.Parent,
@@ -25,7 +42,7 @@ function ModelCullingContext.new(Model: Instance, ModelCulling: Types.ModelCulli
         ClusteringEnabled = false,
         FlatteningFilters = {},
         UnflattenableModelCache = {},
-    }, ModelCullingContext) :: any) :: Types.ModelCullingContext
+    }, ModelCullingContext) :: ModelCullingContext
 end
 
 --[[
@@ -35,7 +52,7 @@ and unloading. An optional amount of operations per step when showing
 the model can be provided, intended for models that need to be shown
 faster than others (little time to show or high part count).
 --]]
-function ModelCullingContext:EnableFlattening(OperationsPerStep: number?): Types.ModelCullingContext
+function ModelCullingContext.EnableFlattening(self: ModelCullingContext, OperationsPerStep: number?): ModelCullingContext
     --Enable flattening.
     self.FlatteningEnabled = true
     self.ReparentOperationsPerStep = OperationsPerStep
@@ -48,14 +65,14 @@ function ModelCullingContext:EnableFlattening(OperationsPerStep: number?): Types
     end
 
     --Return the context.
-    return (self :: any) :: Types.ModelCullingContext
+    return self
 end
 
 --[[
 Enables flattened parts of the model to be grouped together into smaller
 folders to reduce reparent operations.
 --]]
-function ModelCullingContext:EnableClustering(PartClusterSize: number?): Types.ModelCullingContext
+function ModelCullingContext.EnableClustering(self: ModelCullingContext, PartClusterSize: number?): ModelCullingContext
     --Enable clustering.
     self.ClusteringEnabled = true
     self.PartClusterSize = PartClusterSize
@@ -70,7 +87,7 @@ entire model directly under the model for the context will not be flattened.
 The filter function returns a bool for whether the instance can be flattened
 and a string value covering why it can't for debugging.
 --]]
-function ModelCullingContext:AddFlatteningFilter(Filter: (Instance) -> (boolean, string?)): Types.ModelCullingContext
+function ModelCullingContext.AddFlatteningFilter(self: ModelCullingContext, Filter: (Instance) -> (boolean, string?)): ModelCullingContext
     table.insert(self.FlatteningFilters, Filter)
     return self
 end
@@ -78,7 +95,7 @@ end
 --[[
 Returns if an instance can be flattened.
 --]]
-function ModelCullingContext:CanFlatten(Child: Instance): boolean
+function ModelCullingContext.CanFlatten(self: ModelCullingContext, Child: Instance): boolean
     --Return false if the child can't be flattened.
     for _, Filter in self.FlatteningFilters do
         local CanFlatten, _ = Filter(Child)
@@ -100,7 +117,7 @@ end
 Returns if an instance can be flattened.
 Caches the results for future runs.
 --]]
-function ModelCullingContext:CanFlattenCaching(Child: Instance): boolean
+function ModelCullingContext.CanFlattenCaching(self: ModelCullingContext, Child: Instance): boolean
     local UnflattenableModelCache = self.UnflattenableModelCache
     if not UnflattenableModelCache[Child] and not self:CanFlatten(Child) then
         UnflattenableModelCache[Child] = true
@@ -111,7 +128,7 @@ end
 --[[
 Flattens the current model.
 --]]
-function ModelCullingContext:FlattenModel(): ()
+function ModelCullingContext.FlattenModel(self: ModelCullingContext): ()
     if not self.FlatteningEnabled then return end
     local StaticPartsFolder = self.Model:FindFirstChild("StaticParts") :: Folder
     if not StaticPartsFolder then return end
@@ -157,7 +174,7 @@ function ModelCullingContext:FlattenModel(): ()
         local ClusterFolder = Instance.new("Folder")
         ClusterFolder.Name = "PartCluster"
         if self.Model:IsDescendantOf(HiddenGeometry) then
-            table.insert(self.HiddenParts, {Part = ClusterFolder, Parent = StaticPartsFolder})
+            table.insert(self.HiddenParts, {Part = ClusterFolder :: Instance, Parent = StaticPartsFolder :: Instance})
             ClusterFolder.Parent = HiddenGeometry
         else
             ClusterFolder.Parent = StaticPartsFolder
@@ -171,7 +188,7 @@ end
 --[[
 Returns a summary for the model culling context.
 --]]
-function ModelCullingContext:GetSummary(): Types.ModelCullingContextSummary
+function ModelCullingContext.GetSummary(self: ModelCullingContext): ModelCullingContextSummary
     --Create the initial summary.
     local Summary = {
         Model = self.Model,
@@ -209,7 +226,7 @@ function ModelCullingContext:GetSummary(): Types.ModelCullingContextSummary
             for _, Filter in self.FlatteningFilters do
                 local CanFlatten, Issue = Filter(Child)
                 if CanFlatten then continue end
-                table.insert(Issues, Issue)
+                table.insert(Issues, Issue :: string)
             end
             if #Issues > 0 then
                 table.insert(Summary.Issues, {
@@ -228,7 +245,7 @@ end
 Hides the current model using the given amoung of operations. Returns the
 remaining operations.
 --]]
-function ModelCullingContext:HideModel(RemainingOperations: number): number
+function ModelCullingContext.HideModel(self: ModelCullingContext, RemainingOperations: number): number
     --Move static parts.
     local StaticAnchoredParts = self.Model:FindFirstChild("StaticParts") :: Folder
     local HiddenGeometry = self.ModelCulling.HiddenGeometry
@@ -238,7 +255,7 @@ function ModelCullingContext:HideModel(RemainingOperations: number): number
             if RemainingOperations <= 0 then break end
             local Part = StaticAnchoredPartsToMove[i]
             Part.Parent = HiddenGeometry
-            table.insert(self.HiddenParts, {Part = Part, Parent = StaticAnchoredParts})
+            table.insert(self.HiddenParts, {Part = Part, Parent = StaticAnchoredParts :: Instance})
             RemainingOperations += -((Part:IsA("Model") or Part:IsA("Folder")) and #Part:GetChildren() or 1)
         end
     end
@@ -262,7 +279,7 @@ end
 Shows the current model using the given amoung of operations. Returns the
 remaining operations.
 --]]
-function ModelCullingContext:ShowModel(RemainingOperations: number): number
+function ModelCullingContext.ShowModel(self: ModelCullingContext, RemainingOperations: number): number
     --Move the model.
     if self.Model.Parent ~= self.ModelParent then
         local MovedParts = 0
@@ -289,4 +306,4 @@ end
 
 
 
-return (ModelCullingContext :: any) :: Types.ModelCullingContext
+return ModelCullingContext

@@ -1,8 +1,5 @@
---[[
-TheNexusAvenger
-
-Static instances for region culling.
---]]
+--Static instances for region culling.
+--!strict
 
 local ModelCulling = require(script:WaitForChild("Culling"):WaitForChild("ModelCulling"))
 local RegionState = require(script:WaitForChild("State"):WaitForChild("RegionState"))
@@ -10,14 +7,16 @@ local BufferedRegionState = require(script:WaitForChild("State"):WaitForChild("B
 
 local RegionCulling = {}
 RegionCulling.RegionState = BufferedRegionState.new(RegionState.new())
-RegionCulling.ModelCulling = ModelCulling.new(RegionCulling.RegionState)
+RegionCulling.ModelCulling = ModelCulling.new(RegionCulling.RegionState :: any)
+
+export type RegionCulling = typeof(RegionCulling)
 
 
 
 --[[
 Starts all culling loops.
 --]]
-function RegionCulling:Start(): ()
+function RegionCulling.Start(self: RegionCulling): ()
     self.RegionState:StartUpdating()
     self.ModelCulling:StartProcessingQueue()
     self.ModelCulling:StartModelFlattening()
