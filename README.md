@@ -18,7 +18,7 @@ regions being unloaded and quickly reloaded. 0 disables buffering
 entirely, which is useful for testing to ensure region connections
 aren't missing.
 
-```lua
+```luau
 --Location of RegionCulling can be anywhere the client can see.
 --Using the main module is not required, but it does reduce setup a bit for most cases.
 local RegionCulling = require(game:GetService("ReplicatedStorage"):WaitForChild("RegionCulling"))
@@ -53,7 +53,7 @@ RegionCulling:Start()
 
 `RegionState` can also be read by other scripts.
 
-```lua
+```luau
 --Location of RegionCulling can be anywhere the client can see.
 --Using the main module is not required, but it does reduce setup a bit for most cases.
 local RegionCulling = require(game:GetService("ReplicatedStorage"):WaitForChild("RegionCulling"))
@@ -88,7 +88,7 @@ With model flattening, reparenting operations can be done by calling
 the given size or `PartClusterSize` in `ModelCulling`, with 50 as
 default.
 
-```lua
+```luau
 --Location of RegionCulling can be anywhere the client can see.
 --Using the main module is not required, but it does reduce setup a bit for most cases.
 local RegionCulling = require(game:GetService("ReplicatedStorage"):WaitForChild("RegionCulling"))
@@ -132,6 +132,26 @@ end
 --Start the update loops.
 --Camera:GetRenderCFrame() is used for checking where the player is.
 RegionCulling:Start()
+```
+
+### Using `LocalTransparencyModifier`
+`ModelCulling` can be configured to use `LocalTransparencyModifier`.
+It will retain collisions and will have less lag when loading/unloading,
+but CPU frame times will still be worse compared to not having the
+instances in `Workspace`.
+
+```luau
+--Location of RegionCulling can be anywhere the client can see.
+--Using the main module is not required, but it does reduce setup a bit for most cases.
+local RegionCulling = require(game:GetService("ReplicatedStorage"):WaitForChild("RegionCulling"))
+local ModelCulling = RegionCulling.ModelCulling
+
+--Change the model culling strategy.
+ModelCulling.ModelCullingStrategy = "Transparency"
+
+--Optional - change the transparency operations per step. Clustering is not supported.
+--In general, TransparencyOperationsPerStep can be many times ReparentOperationsPerStep.
+ModelCulling.TransparencyOperationsPerStep = 800
 ```
 
 # Diagnosing Performance With `AddFlatteningFilter`
