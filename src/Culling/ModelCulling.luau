@@ -4,22 +4,26 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ModelCullingContext = require(script.Parent:WaitForChild("ModelCullingContext"))
+local ModelHidingContext = require(script.Parent:WaitForChild("ModelHidingContext"))
 local RegionState = require(script.Parent.Parent:WaitForChild("State"):WaitForChild("RegionState"))
 
 local ModelCulling = {}
 ModelCulling.__index = ModelCulling
 
+export type ModelCullingStrategy = "Parent" | "Transparency"
 export type ModelCullingOperation = {
     RegionName: string,
     Operation: string,
     Context: ModelCullingContext.ModelCullingContext,
 }
 export type ModelCulling = {
+    ModelCullingStrategy: ModelCullingStrategy,
     RegionState: RegionState.RegionState,
     ReparentOperationsPerStep: number,
     PartClusterSize: number,
     ProcessStepDelay: number,
     PassiveModelFlattenDelay: number,
+    TransparencyOperationsPerStep: number,
     HiddenGeometry: Folder,
     Contexts: {[string]: {ModelCullingContext.ModelCullingContext}},
     QueuedOperations: {ModelCullingOperation},
@@ -33,11 +37,13 @@ Creates a model culling controller.
 function ModelCulling.new(RegionState: RegionState.RegionState): ModelCulling
     --Create the object.
     local self = setmetatable({
+        ModelCullingStrategy = "Parent" :: ModelCullingStrategy,
         RegionState = RegionState,
         ReparentOperationsPerStep = 250,
         PartClusterSize = 50,
         ProcessStepDelay = 1 / 30,
         PassiveModelFlattenDelay = 5,
+        TransparencyOperationsPerStep = 1000,
         Contexts = {},
         QueuedOperations = {},
     }, ModelCulling) :: ModelCulling
@@ -81,7 +87,12 @@ Binds a model to a region. Returns a context for further configuring.
 --]]
 function ModelCulling.BindModelToRegion(self: ModelCulling, RegionName: string, Model: Instance): ModelCullingContext.ModelCullingContext
     --Create the context.
-    local Context = ModelCullingContext.new(Model, self)
+    local Context = nil
+    if self.ModelCullingStrategy == "Transparency" then
+        Context = ModelHidingContext.new(Model) :: any --ModelHidingContext is API-compatible with ModelCullingContext.
+    else
+        Context = ModelCullingContext.new(Model, self)
+    end
     if not self.Contexts[RegionName] then
         self.Contexts[RegionName] = {}
     end
@@ -159,7 +170,7 @@ Processes a single step of operations of the queue.
 --]]
 function ModelCulling.PerformQueueStep(self: ModelCulling): ()
     --Get the initial operations to perform.
-    local RemainingOperations = self.ReparentOperationsPerStep
+    local RemainingOperations = (self.ModelCullingStrategy == "Transparency" and self.TransparencyOperationsPerStep or self.ReparentOperationsPerStep)
     for _, PendingOperation in self.QueuedOperations do
         if PendingOperation.Operation ~= "Show" then continue end
         if not PendingOperation.Context.ReparentOperationsPerStep then continue end
@@ -211,6 +222,7 @@ Starts passively flattening models in the background.
 Only intended for models that change (such as StreamingEnabled).
 --]]
 function ModelCulling.StartModelFlattening(self: ModelCulling): ()
+    if self.ModelCullingStrategy == "Transparency" then return end
     task.spawn(function()
         while true do
             for RegionName, Contexts in self.Contexts do

@@ -10,9 +10,14 @@ local ModelCulling = RegionCulling.ModelCulling
 
 
 
+--Enable using transparency instead of reparents.
+--Transparency allows for collisions to work, but increase CPU frame times over reparenting.
+--ModelCulling.ModelCullingStrategy = "Transparency"
+
 --Set the test values that apply to all models.
 RegionState.HiddenRegionTimeout = 2
 ModelCulling.ReparentOperationsPerStep = 20
+ModelCulling.TransparencyOperationsPerStep = 20
 
 --Create the regions.
 for X = -2, 2 do
