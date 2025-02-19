@@ -2,6 +2,7 @@
 --!strict
 
 local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
 
 local Event = require(script.Parent.Parent:WaitForChild("Event"))
 
@@ -13,6 +14,7 @@ export type RegionState = {
         InRegionFunctions: {(CFrame) -> (boolean)},
         VisibleRegions: {string},
     }},
+    DefaultPositionSources: {() -> (Vector3?)},
     VisibleWhenOutsideRegionsMap: {[string]: boolean},
     CurrentVisibleRegionsMap: {[string]: boolean},
     CurrentVisibleRegions: {string},
@@ -28,6 +30,18 @@ Creates a region state.
 function RegionState.new(): RegionState
     return setmetatable({
         Regions = {},
+        DefaultPositionSources = {
+            function(): Vector3?
+                return Workspace.CurrentCamera:GetRenderCFrame().Position
+            end,
+            function(): Vector3?
+                local Character = Players.LocalPlayer.Character
+                if not Character then return end
+                local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart") :: BasePart
+                if not HumanoidRootPart then return end
+                return HumanoidRootPart.Position
+            end,
+        },
         VisibleWhenOutsideRegionsMap = {},
         CurrentVisibleRegionsMap = {},
         CurrentVisibleRegions = {},
@@ -137,9 +151,19 @@ end
 Updates the visible regions.
 --]]
 function RegionState.UpdateVisibleRegions(self: RegionState, Positions: {Vector3}?): ()
+    --Set the default positions if none were provided.
+    local NewPositions = Positions or {}
+    if not Positions then
+        for _, GetPositionFunction in self.DefaultPositionSources do
+            local Position = GetPositionFunction()
+            if not Position then continue end
+            table.insert(NewPositions, Position)
+        end
+    end
+
     --Get the visible regions.
     local CurrentVisibleRegionsMap = self.CurrentVisibleRegionsMap
-    local NewRegions = self:GetVisibleRegions(Positions or {Workspace.CurrentCamera:GetRenderCFrame().Position})
+    local NewRegions = self:GetVisibleRegions(NewPositions)
     self.CurrentVisibleRegionsMap = NewRegions
 
     --Store the visible regions as a list.
