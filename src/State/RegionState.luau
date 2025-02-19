@@ -52,19 +52,23 @@ end
 --[[
 Returns a dictionary of the visible regions.
 --]]
-function RegionState.GetVisibleRegions(self: RegionState, Position: Vector3): {[string]: boolean}
+function RegionState.GetVisibleRegions(self: RegionState, Positions: {Vector3}): {[string]: boolean}
     local VisibleRegionsMap = {}
-    local InRegions = false
-    for RegionName, RegionData in self.Regions do
-        if not self:IsInRegion(RegionName, Position) then continue end
-        InRegions = true
-        VisibleRegionsMap[RegionName] = true
-        for _, VisibleRegionName in RegionData.VisibleRegions do
-            VisibleRegionsMap[VisibleRegionName] = true
+    for _, Position in Positions do
+        local InRegions = false
+        for RegionName, RegionData in self.Regions do
+            if not self:IsInRegion(RegionName, Position) then continue end
+            InRegions = true
+            VisibleRegionsMap[RegionName] = true
+            for _, VisibleRegionName in RegionData.VisibleRegions do
+                VisibleRegionsMap[VisibleRegionName] = true
+            end
         end
-    end
-    if not InRegions then
-        return self.VisibleWhenOutsideRegionsMap
+        if not InRegions then
+            for RegionName, _ in self.VisibleWhenOutsideRegionsMap do
+                VisibleRegionsMap[RegionName] = true
+            end
+        end
     end
     return VisibleRegionsMap
 end
@@ -132,10 +136,10 @@ end
 --[[
 Updates the visible regions.
 --]]
-function RegionState.UpdateVisibleRegions(self: RegionState, Position: Vector3?): ()
+function RegionState.UpdateVisibleRegions(self: RegionState, Positions: {Vector3}?): ()
     --Get the visible regions.
     local CurrentVisibleRegionsMap = self.CurrentVisibleRegionsMap
-    local NewRegions = self:GetVisibleRegions(Position or Workspace.CurrentCamera:GetRenderCFrame().Position)
+    local NewRegions = self:GetVisibleRegions(Positions or {Workspace.CurrentCamera:GetRenderCFrame().Position})
     self.CurrentVisibleRegionsMap = NewRegions
 
     --Store the visible regions as a list.

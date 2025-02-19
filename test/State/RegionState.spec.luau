@@ -28,35 +28,50 @@ return function()
         end)
 
         it("should return the visible regions.", function()
-            local VisibleRegions = RegionStateObject:GetVisibleRegions(Vector3.new(0, 0, 0))
+            local VisibleRegions = RegionStateObject:GetVisibleRegions({Vector3.new(0, 0, 0)})
             expect(VisibleRegions["Region1"]).to.equal(true)
             expect(VisibleRegions["Region2"]).to.equal(true)
             expect(VisibleRegions["Region3"]).to.equal(true)
 
-            VisibleRegions = RegionStateObject:GetVisibleRegions(Vector3.new(0, 0, 4))
+            VisibleRegions = RegionStateObject:GetVisibleRegions({Vector3.new(0, 0, 4)})
             expect(VisibleRegions["Region1"]).to.equal(true)
             expect(VisibleRegions["Region2"]).to.equal(true)
             expect(VisibleRegions["Region3"]).to.equal(nil)
 
-            VisibleRegions = RegionStateObject:GetVisibleRegions(Vector3.new(0, 0, 6))
+            VisibleRegions = RegionStateObject:GetVisibleRegions({Vector3.new(0, 0, 6)})
             expect(VisibleRegions["Region1"]).to.equal(true)
             expect(VisibleRegions["Region2"]).to.equal(nil)
             expect(VisibleRegions["Region3"]).to.equal(true)
 
-            VisibleRegions = RegionStateObject:GetVisibleRegions(Vector3.new(0, 0, 5))
+            VisibleRegions = RegionStateObject:GetVisibleRegions({Vector3.new(0, 0, 5)})
             expect(VisibleRegions["Region1"]).to.equal(true)
             expect(VisibleRegions["Region2"]).to.equal(true)
             expect(VisibleRegions["Region3"]).to.equal(true)
 
-            VisibleRegions = RegionStateObject:GetVisibleRegions(Vector3.new(0, 0, 10))
+            VisibleRegions = RegionStateObject:GetVisibleRegions({Vector3.new(0, 0, 10)})
             expect(VisibleRegions["Region1"]).to.equal(nil)
             expect(VisibleRegions["Region2"]).to.equal(nil)
             expect(VisibleRegions["Region3"]).to.equal(nil)
 
             RegionStateObject:SetVisibleWhenOutsideRegions("Region1")
             RegionStateObject:SetVisibleWhenOutsideRegions("Region3")
+            VisibleRegions = RegionStateObject:GetVisibleRegions({Vector3.new(0, 0, 10)})
             expect(VisibleRegions["Region1"]).to.equal(true)
             expect(VisibleRegions["Region2"]).to.equal(nil)
+            expect(VisibleRegions["Region3"]).to.equal(true)
+        end)
+
+        it("should return the visible regions with multiple positions.", function()
+            local VisibleRegions = RegionStateObject:GetVisibleRegions({Vector3.new(0, 0, 4), Vector3.new(0, 0, 6)})
+            expect(VisibleRegions["Region1"]).to.equal(true)
+            expect(VisibleRegions["Region2"]).to.equal(true)
+            expect(VisibleRegions["Region3"]).to.equal(true)
+            
+            --This tests 1 point being inside regions and 1 being outside.
+            RegionStateObject:SetVisibleWhenOutsideRegions("Region3")
+            VisibleRegions = RegionStateObject:GetVisibleRegions({Vector3.new(0, 0, 4), Vector3.new(0, 0, 10)})
+            expect(VisibleRegions["Region1"]).to.equal(true)
+            expect(VisibleRegions["Region2"]).to.equal(true)
             expect(VisibleRegions["Region3"]).to.equal(true)
         end)
 
@@ -74,7 +89,7 @@ return function()
                 HiddenEvents[Region] = true
             end)
 
-            RegionStateObject:UpdateVisibleRegions(Vector3.new(0, 0, 0))
+            RegionStateObject:UpdateVisibleRegions({Vector3.new(0, 0, 0)})
             task.wait()
             expect(VisibleEvents["Region1"]).to.equal(true)
             expect(VisibleEvents["Region2"]).to.equal(true)
@@ -87,7 +102,7 @@ return function()
             expect(RegionStateObject:IsRegionVisible("Region3")).to.equal(true)
 
             VisibleEvents, HiddenEvents = {}, {}
-            RegionStateObject:UpdateVisibleRegions(Vector3.new(0, 4, 0))
+            RegionStateObject:UpdateVisibleRegions({Vector3.new(0, 4, 0)})
             task.wait()
             expect(VisibleEvents["Region1"]).to.equal(nil)
             expect(VisibleEvents["Region2"]).to.equal(nil)
@@ -100,7 +115,7 @@ return function()
             expect(RegionStateObject:IsRegionVisible("Region3")).to.equal(true)
 
             VisibleEvents, HiddenEvents = {}, {}
-            RegionStateObject:UpdateVisibleRegions(Vector3.new(0, 0, 4))
+            RegionStateObject:UpdateVisibleRegions({Vector3.new(0, 0, 4)})
             task.wait()
             expect(VisibleEvents["Region1"]).to.equal(nil)
             expect(VisibleEvents["Region2"]).to.equal(nil)
@@ -113,7 +128,7 @@ return function()
             expect(RegionStateObject:IsRegionVisible("Region3")).to.equal(false)
 
             VisibleEvents, HiddenEvents = {}, {}
-            RegionStateObject:UpdateVisibleRegions(Vector3.new(0, 0, 6))
+            RegionStateObject:UpdateVisibleRegions({Vector3.new(0, 0, 6)})
             task.wait()
             expect(VisibleEvents["Region1"]).to.equal(nil)
             expect(VisibleEvents["Region2"]).to.equal(nil)
@@ -126,7 +141,7 @@ return function()
             expect(RegionStateObject:IsRegionVisible("Region3")).to.equal(true)
 
             VisibleEvents, HiddenEvents = {}, {}
-            RegionStateObject:UpdateVisibleRegions(Vector3.new(0, 0, 10))
+            RegionStateObject:UpdateVisibleRegions({Vector3.new(0, 0, 10)})
             task.wait()
             expect(VisibleEvents["Region1"]).to.equal(nil)
             expect(VisibleEvents["Region2"]).to.equal(nil)
