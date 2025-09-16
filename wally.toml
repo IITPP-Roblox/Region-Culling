@@ -1,0 +1,15 @@
+[package]
+name = "iitpp-roblox/region-culling"
+repository = "https://github.com/IITPP-Roblox/Region-Culling"
+description = "Hides irrelevant parts of maps to drastically improve performance."
+license = "MIT"
+authors = ["IITPP-Roblox"]
+version = "1.4.0"
+
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+exclude = ["**"]
+include = ["src", "src/*", "default.project.json", "wally.lock", "wally.toml"]
+
+[dependencies]
